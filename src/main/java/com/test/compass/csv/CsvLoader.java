@@ -20,7 +20,7 @@ public class CsvLoader {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    private List<Client> loadCsv() {
+    public List<Client> loadCsv() {
 
         List<Client> clients = new ArrayList<>();
         Resource resource = resourceLoader.getResource("classpath:data.csv");
@@ -97,7 +97,7 @@ public class CsvLoader {
         return results;
     }
 
-    private boolean notEmptyFields(String a, String b) {
+    public boolean notEmptyFields(String a, String b) {
         return !Strings.isEmpty(a) && !Strings.isEmpty(b);
     }
 }
