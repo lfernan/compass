@@ -50,46 +50,43 @@ public class CsvLoader {
     public List<Result> compare() {
         List<Client> clients = loadCsv();
         List<Result> results = new ArrayList<>();
-        Set<Integer> analyzed = new HashSet<>();
 
-        for (Client client : clients) {
+        for (int i = 0; i < clients.size(); i++) {
+            Client client = clients.get(i);
 
-            for (Client compare : clients) {
+            List<Client> subList = clients.subList(i + 1, clients.size());
+            for (Client compare : subList) {
 
                 if (!Objects.equals(client.getId(), compare.getId())) {
 
-                    if (!analyzed.contains(client.getId())) {
 
-                        Result result = new Result(client.getId(), compare.getId());
+                    Result result = new Result(client.getId(), compare.getId());
 
-                        if (notEmptyFields(client.getName(), compare.getName()) && client.getName().equalsIgnoreCase(compare.getName())) {
-                            result.plusScore();
-                        }
+                    if (notEmptyFields(client.getName(), compare.getName()) && client.getName().equalsIgnoreCase(compare.getName())) {
+                        result.plusScore();
+                    }
 
-                        if (notEmptyFields(client.getLastname(), compare.getLastname()) && client.getLastname().equalsIgnoreCase(compare.getLastname())) {
-                            result.plusScore();
-                        }
+                    if (notEmptyFields(client.getLastname(), compare.getLastname()) && client.getLastname().equalsIgnoreCase(compare.getLastname())) {
+                        result.plusScore();
+                    }
 
-                        if (notEmptyFields(client.getEmail(), compare.getEmail()) && client.getEmail().equalsIgnoreCase(compare.getEmail())) {
-                            result.plusScore();
-                        }
+                    if (notEmptyFields(client.getEmail(), compare.getEmail()) && client.getEmail().equalsIgnoreCase(compare.getEmail())) {
+                        result.plusScore();
+                    }
 
-                        if (notEmptyFields(client.getAddress(), compare.getAddress()) && client.getAddress().equalsIgnoreCase(compare.getAddress())) {
-                            result.plusScore();
-                        }
+                    if (notEmptyFields(client.getAddress(), compare.getAddress()) && client.getAddress().equalsIgnoreCase(compare.getAddress())) {
+                        result.plusScore();
+                    }
 
-                        if (notEmptyFields(client.getPostalZip(), compare.getPostalZip()) && client.getPostalZip().equalsIgnoreCase(compare.getPostalZip())) {
-                            result.plusScore();
-                        }
+                    if (notEmptyFields(client.getPostalZip(), compare.getPostalZip()) && client.getPostalZip().equalsIgnoreCase(compare.getPostalZip())) {
+                        result.plusScore();
+                    }
 
-                        if (result.getScore() > 0) {
-                            results.add(result);
-                            analyzed.add(compare.getId());
-                        }
+                    if (result.getScore() > 0) {
+                        results.add(result);
                     }
                 }
             }
-            analyzed.add(client.getId());
         }
 
         results.forEach(System.out::println);
