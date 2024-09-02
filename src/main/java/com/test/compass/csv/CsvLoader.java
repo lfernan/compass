@@ -5,11 +5,11 @@ import com.test.compass.dto.Client;
 import com.test.compass.dto.Result;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -17,30 +17,30 @@ import java.util.*;
 @Service
 public class CsvLoader {
 
+    @Value("${csv.name}")
+    private String csvResource;
+    private final ResourceLoader resourceLoader;
+
     @Autowired
-    private ResourceLoader resourceLoader;
+    public CsvLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
     public List<Client> loadCsv() {
 
         List<Client> clients = new ArrayList<>();
-        Resource resource = resourceLoader.getResource("classpath:data.csv");
-        File file = null;
-        try {
-            file = resource.getFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Resource resource = resourceLoader.getResource(csvResource);
 
-        try (CSVReader reader = new CSVReader(new FileReader(file))) {
+        try (CSVReader reader = new CSVReader(new FileReader(resource.getFile()))) {
             String[] nextLine;
 
             while ((nextLine = reader.readNext()) != null) {
                 clients.add(new Client(Integer.valueOf(nextLine[0]), nextLine[1], nextLine[2], nextLine[3], nextLine[4], nextLine[5]));
             }
+
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("CSV reading error: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println("CSV validation error: " + e.getMessage());
         }
 

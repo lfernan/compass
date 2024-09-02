@@ -1,88 +1,39 @@
 package com.test.compass.service;
 
 import com.test.compass.csv.CsvLoader;
-import com.test.compass.dto.Client;
 import com.test.compass.dto.Result;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CsvLoaderTest {
+@SpringBootTest
+class CsvLoaderTest {
 
-    @InjectMocks
-    private CsvLoader csvLoader;
+    private static final String LOW = "Low";
+    private static final String MEDIUM = "Medium";
+    private static final String HIGH = "High";
 
-    @Mock
-    private ResourceLoader resourceLoader;
+    @Autowired
+    CsvLoader csvLoader;
 
-    @Mock
-    private Resource resource;
-
-    @Mock
-    private File file;
-
-    private List<Client> clients;
-
-    @Before
-    public void setup() {
-        clients = new ArrayList<>();
-        clients.add(new Client(1, "John", "Doe", "john.doe@example.com", "123 Main St", "12345"));
-        clients.add(new Client(2, "Jane", "Doe", "jane.doe@example.com", "456 Elm St", "67890"));
-        clients.add(new Client(3, "John", "Doe", "john.doe@example.com", "123 Main St", "12345"));
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(csvLoader, "csvResource", "classpath:test.csv");
     }
 
     @Test
-    public void testLoadCsv() throws IOException {
-        // Given
-        when(resourceLoader.getResource(anyString())).thenReturn(resource);
-        when(resource.getFile()).thenReturn(file);
-
-        // When
-        List<Client> loadedClients = csvLoader.loadCsv();
-
-        // Then
-        assertEquals(clients, loadedClients);
+    void compare() {
+        List<Result> result = csvLoader.compare();
+        assertEquals(result.get(0).getAccuracy(), LOW);
+        assertEquals(result.get(1).getAccuracy(), MEDIUM);
+        assertEquals(result.get(2).getAccuracy(), HIGH);
+        assertEquals(result.get(3).getAccuracy(), LOW);
+        assertEquals(result.get(4).getAccuracy(), MEDIUM);
     }
-
-    @Test
-    public void testCompare() {
-        // Given
-        when(csvLoader.loadCsv()).thenReturn(clients);
-
-        // When
-        List<Result> results = csvLoader.compare();
-
-        // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
-    }
-
-    @Test
-    public void testCompare_NoMatches() {
-        // Given
-        when(csvLoader.loadCsv()).thenReturn(new ArrayList<>());
-
-        // When
-        List<Result> results = csvLoader.compare();
-
-        // Then
-        assertNotNull(results);
-        assertEquals(0, results.size());
-    }
-
 }
